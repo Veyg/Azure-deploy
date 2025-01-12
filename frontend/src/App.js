@@ -7,7 +7,7 @@ function App() {
 
   const fetchMessages = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/data');
+      const res = await fetch('http://20.215.192.139:5001/api/data');
       if (res.ok) {
         const data = await res.json();
         setMessages(data);
@@ -26,7 +26,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5001/api/send', {
+      const res = await fetch('http://20.215.192.139:5001/api/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
