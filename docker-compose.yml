@@ -10,8 +10,7 @@ services:
       - backend
 
   backend:
-    build:
-      context: ./backend
+    build: ./backend
     ports:
       - "5001:5000"
     environment:
