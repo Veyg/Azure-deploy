@@ -5,7 +5,7 @@ services:
     ports:
       - "80:80"  # Changed to standard HTTP port
     environment:
-      - REACT_APP_API_URL=http://50.85.83.150:5001  # Add backend URL
+      - REACT_APP_API_URL=http://20.215.192.139:5001  # Add backend URL
     depends_on:
       - backend
 
@@ -21,7 +21,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=appdb
       - KAFKA_HOST=kafka
-      - CORS_ORIGIN=http://50.85.83.150  # Add CORS configuration
+      - CORS_ORIGIN=http://20.215.192.139  # Add CORS configuration
     depends_on:
       database:
         condition: service_healthy
@@ -56,8 +56,8 @@ services:
     image: bitnami/kafka:latest
     environment:
       KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,EXTERNAL://50.85.83.150:9093
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://50.85.83.150:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,EXTERNAL://20.215.192.139:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://20.215.192.139:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     depends_on:
