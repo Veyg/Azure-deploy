@@ -6,9 +6,9 @@ services:
         - DISABLE_ESLINT_PLUGIN=true
         - DISABLE_NOTIFICATIONS=true
     ports:
-      - "80:80"  # Changed to standard HTTP port
+      - "80:80"  
     environment:
-      - REACT_APP_API_URL=http://20.215.192.139:5001  # Add backend URL
+      - REACT_APP_API_URL=http://20.215.192.139:5001  
     depends_on:
       - backend
     networks:
@@ -25,7 +25,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=appdb
       - KAFKA_HOST=kafka
-      - CORS_ORIGIN=http://20.215.192.139  # Add CORS configuration
+      - CORS_ORIGIN=http://20.215.192.139 
     depends_on:
       database:
         condition: service_healthy

@@ -35,6 +35,31 @@ def create_connection():
 
 conn = create_connection()
 
+def verify_database():
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'sample_table'
+            );
+        """)
+        exists = cursor.fetchone()[0]
+        if not exists:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS sample_table (
+                    id SERIAL PRIMARY KEY,
+                    data TEXT NOT NULL
+                );
+            """)
+            conn.commit()
+            logging.info("Created sample_table")
+    except Exception as e:
+        logging.error(f"Database verification failed: {e}")
+        raise
+
+verify_database()
+
 producer = KafkaProducer(bootstrap_servers='kafka:9092')
 
 def create_kafka_topic():
@@ -83,21 +108,34 @@ def send_message():
         return jsonify({"error": str(e)}), 500
 
 def save_kafka_messages():
-    consumer = KafkaConsumer(
-        'my-topic',
-        bootstrap_servers='kafka:9092',
-        auto_offset_reset='earliest',
-        enable_auto_commit=True,
-        group_id='database-consumer'  
-    )
-    for message in consumer:
+    while True:
         try:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO sample_table (data) VALUES (%s)", (message.value.decode('utf-8'),))
-            conn.commit()
-            logging.info(f"Saved message to database: {message.value.decode('utf-8')}")
+            consumer = KafkaConsumer(
+                'my-topic',
+                bootstrap_servers='kafka:9092',
+                auto_offset_reset='earliest',
+                enable_auto_commit=True,
+                group_id='database-consumer',
+                consumer_timeout_ms=1000
+            )
+            
+            for message in consumer:
+                try:
+                    cursor = conn.cursor()
+                    data = message.value.decode('utf-8')
+                    cursor.execute(
+                        "INSERT INTO sample_table (data) VALUES (%s) RETURNING id;",
+                        (data,)
+                    )
+                    inserted_id = cursor.fetchone()[0]
+                    conn.commit()
+                    logging.info(f"Saved message to database with id {inserted_id}: {data}")
+                except Exception as e:
+                    logging.error(f"Error saving message to database: {e}")
+                    conn.rollback()
         except Exception as e:
-            logging.error(f"Error saving message to database: {e}")
+            logging.error(f"Kafka consumer error: {e}")
+            time.sleep(5)
 
 threading.Thread(target=save_kafka_messages, daemon=True).start()
 
