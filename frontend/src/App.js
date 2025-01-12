@@ -26,22 +26,31 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Sending message:', message); // Debug log
       const res = await fetch('http://20.215.192.139:5001/api/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        mode: 'cors',
+        body: JSON.stringify({ message: message }),
       });
+      
+      console.log('Response status:', res.status); // Debug log
+      
       if (res.ok) {
         const data = await res.json();
+        console.log('Response data:', data); // Debug log
         setResponse(data.status || 'Message sent successfully!');
         setMessage('');
-        fetchMessages();
+        await fetchMessages(); // Refresh messages list
       } else {
-        setResponse('Failed to send the message.');
+        const errorData = await res.json();
+        setResponse(`Failed to send the message: ${errorData.error || res.statusText}`);
       }
     } catch (error) {
+      console.error('Error details:', error); // Debug log
       setResponse(`Error: ${error.message}`);
     }
   };
