@@ -2,6 +2,9 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        - DISABLE_ESLINT_PLUGIN=true
+        - DISABLE_NOTIFICATIONS=true
     ports:
       - "80:80"  # Changed to standard HTTP port
     environment:
